@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>360° Ürün Görseli Oluşturucu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>360° Ürün Görseli Oluşturucu</h1>
+
+    <div class="container">
+
+        <!-- Preview Section -->
+        <div class="preview-area">
+            <div id="pv">
+                <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#999;">
+                    Görsel yükleyiniz...
+                </div>
+            </div>
+
+            <div style="margin-top:15px; width:100%; display:flex; gap:10px; justify-content:center;">
+                <button id="spinBtn" class="secondary" disabled>Test 360° Spin</button>
+            </div>
+        </div>
+
+        <!-- Controls Section (Accordion) -->
+        <div class="controls-area">
+
+            <!-- Panel 1: Görseller (Local Upload) -->
+            <details open>
+                <summary>Görseller (Yükle)</summary>
+                <div class="panel-content">
+                    <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                        <p>Fotoğrafları Seç (Tümü)</p>
+                        <small>20-72 arası tavsiye edilir</small>
+                    </div>
+                    <input type="file" id="fileInput" multiple accept="image/*" class="hidden">
+                    <p id="fileStatus" style="font-size:0.9rem; color:#666; margin-top:5px; text-align:center;"></p>
+
+                    <div style="margin-top:10px;">
+                        <label>Toplam Kare (Otomatik/Manuel):</label>
+                        <input type="number" id="totalFrames" value="36">
+                    </div>
+                    <div style="margin-top:10px;">
+                        <label>Başlangıç Karesi:</label>
+                        <input type="number" id="startFrame" value="1">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Panel 1.5: Sunucu Ayarları (New) -->
+            <details>
+                <summary>Sunucu / Manuel Kurulum</summary>
+                <div class="panel-content">
+                    <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">WordPress veya başka bir sunucudaki
+                        görselleri kullanmak için:</p>
+                    <label>İlk Görsel URL'si (Örn: .../IMG_1.jpg):</label>
+                    <div style="display:flex; gap:5px; margin-bottom:10px;">
+                        <input type="text" id="hostedPath" placeholder="https://site.com/urun/img/IMG_1.jpg"
+                            style="flex:1">
+                        <button id="parseBtn" class="secondary"
+                            style="width:auto; padding:0 15px; white-space:nowrap;">Formatı Bul</button>
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <div style="flex:1">
+                            <label>Dosya Öneki (Prefix):</label>
+                            <input type="text" id="filePrefix" value="img">
+                        </div>
+                        <div style="flex:1">
+                            <label>Uzantı:</label>
+                            <input type="text" id="fileExt" value=".jpg">
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <label style="display:flex; align-items:center; gap:5px;">
+                            <input type="checkbox" id="zeroPadding" checked> Rakamlarda Sıfır Kullan (01, 02...)
+                        </label>
+                        <small style="color:#aaa;">İşaretli değilse: 1, 2, 3... - İşaretliyse: 01, 02, 03...</small>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Panel 2: İzleyici Kontrolü -->
+            <details>
+                <summary>İzleyici Kontrolü</summary>
+                <div class="panel-content">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="inertia" checked> Serbest Dönüş (Inertia)
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Döndürme Hızı (Sensitivity): <span id="sensVal">25</span>px</label>
+                        <input type="range" id="sensitivity" min="1" max="200" value="25">
+                        <small style="color:#888;">Düşük değer = Daha hızlı dönüş (1=Çok Hızlı, 200=Çok Yavaş)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Akıcılık (Friction): %<span id="fricVal">95</span></label>
+                        <input type="range" id="friction" min="50" max="99" value="95">
+                        <small style="color:#888;">Yüksek değer = Daha uzun süren dönüş</small>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Panel 3: Bildirim -->
+            <details>
+                <summary>Bildirim (Notification)</summary>
+                <div class="panel-content">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="useNotification" checked> Başlangıçta Göster
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Bildirim Metni:</label>
+                        <input type="text" id="notifText" value="360° İncelemek İçin Sürükleyin">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Panel 4: Zoom -->
+            <details>
+                <summary>Zoom Ayarları</summary>
+                <div class="panel-content">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="allowZoom" checked> Zoom Aktif
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Maksimum Zoom: <span id="zoomVal">3</span>x</label>
+                        <input type="range" id="maxZoom" min="1.5" max="5" step="0.5" value="3">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Panel 6: Gelişmiş Özellikler -->
+            <details>
+                <summary>Gelişmiş Özellikler</summary>
+                <div class="panel-content">
+                    <!-- Auto Play Removed as per user request -->
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="showControls"> Kontrol Çubuğu (Yön Tuşları)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="showFullScreen"> Tam Ekran Butonu
+                        </label>
+                    </div>
+                    <small style="color:#888;">Bu özellikler varsayılan olarak kapalıdır.</small>
+                </div>
+            </details>
+
+            <!-- Panel 5: Kod Oluştur -->
+            <details>
+                <summary style="background:#eaf6ff; border-top:1px solid #ddd;">Kod Oluştur & Paylaş</summary>
+                <div class="panel-content">
+                    <button id="generateBtn">WordPress Kodunu Oluştur</button>
+                    <div style="margin-top:15px;">
+                        <textarea id="outputCode" readonly
+                            onclick="this.select()">Kodu oluşturmak için butona basın...</textarea>
+                        <button id="copyBtn" class="secondary">Kodu Kopyala</button>
+                    </div>
+                </div>
+            </details>
+
+        </div>
+    </div>
+
+    <script src="product-viewer.js?v=3.1"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const els = {
+                fileInput: document.getElementById('fileInput'),
+                fileStatus: document.getElementById('fileStatus'),
+                fileOptions: document.getElementById('fileOptions'),
+                spinBtn: document.getElementById('spinBtn'),
+                generateBtn: document.getElementById('generateBtn'),
+                outputCode: document.getElementById('outputCode'),
+                copyBtn: document.getElementById('copyBtn'),
+                // Settings
+                sensitivity: document.getElementById('sensitivity'),
+                sensVal: document.getElementById('sensVal'),
+                friction: document.getElementById('friction'),
+                fricVal: document.getElementById('fricVal'),
+                inertia: document.getElementById('inertia'),
+                useNotification: document.getElementById('useNotification'),
+                notifText: document.getElementById('notifText'),
+                allowZoom: document.getElementById('allowZoom'),
+                maxZoom: document.getElementById('maxZoom'),
+                zoomVal: document.getElementById('zoomVal'),
+                path: document.getElementById('hostedPath'),
+                prefix: document.getElementById('filePrefix'),
+                ext: document.getElementById('fileExt'),
+                totalFrames: document.getElementById('totalFrames'),
+                startFrame: document.getElementById('startFrame'),
+                zeroPadding: document.getElementById('zeroPadding'),
+                parseBtn: document.getElementById('parseBtn'),
+                // Advanced
+                showControls: document.getElementById('showControls'),
+                showFullScreen: document.getElementById('showFullScreen')
+            };
+
+            let pvInstance = null;
+            let currentFiles = [];
+
+            // Helper to update live viewer
+            function updateSettings() {
+                if (!pvInstance) return;
+                pvInstance.setOptions({
+                    sensitivity: parseInt(els.sensitivity.value),
+                    friction: parseInt(els.friction.value) / 100,
+                    inertia: els.inertia.checked,
+                    maxZoom: els.allowZoom.checked ? parseFloat(els.maxZoom.value) : 1,
+                    totalFrames: parseInt(els.totalFrames.value),
+                    zeroPadding: els.zeroPadding.checked,
+                    // Advanced live updates
+                    controls: els.showControls.checked,
+                    fullscreen: els.showFullScreen.checked
+                });
+            }
+
+            els.fileInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+                currentFiles = files;
+                els.fileStatus.textContent = `${files.length} görsel seçildi.`;
+
+                const imageUrls = files.map(file => URL.createObjectURL(file));
+
+                if (pvInstance) { pvInstance.destroy && pvInstance.destroy(); }
+                document.getElementById('pv').innerHTML = '';
+
+                pvInstance = new ProductViewer({
+                    element: document.getElementById('pv'),
+                    images: imageUrls,
+                    numberOfImages: parseInt(els.totalFrames.value) || files.length,
+                    startFrame: parseInt(els.startFrame.value) || 1,
+                    // Settings
+                    sensitivity: parseInt(els.sensitivity.value),
+                    friction: parseInt(els.friction.value) / 100,
+                    inertia: els.inertia.checked,
+                    maxZoom: els.allowZoom.checked ? parseFloat(els.maxZoom.value) : 1,
+                    notification: els.useNotification.checked ? { text: els.notifText.value } : null,
+                    zeroPadding: els.zeroPadding.checked,
+                    // Advanced
+                    controls: els.showControls.checked,
+                    fullscreen: els.showFullScreen.checked
+                });
+
+                els.spinBtn.disabled = false;
+            });
+
+            // Event Listeners for controls
+            els.sensitivity.oninput = () => { els.sensVal.innerText = els.sensitivity.value; updateSettings(); };
+            els.friction.oninput = () => { els.fricVal.innerText = els.friction.value; updateSettings(); };
+            els.inertia.onchange = () => { updateSettings(); };
+            els.maxZoom.oninput = () => { els.zoomVal.innerText = els.maxZoom.value; updateSettings(); };
+            els.maxZoom.oninput = () => { els.zoomVal.innerText = els.maxZoom.value; updateSettings(); };
+            els.allowZoom.onchange = () => { updateSettings(); };
+            // Advanced Listeners
+            els.showControls.onchange = updateSettings;
+            els.showFullScreen.onchange = updateSettings;
+            els.totalFrames.oninput = () => {
+                if (currentFiles.length > 0 && pvInstance) {
+                    pvInstance.setOptions({ numberOfImages: parseInt(els.totalFrames.value) || 36 });
+                } else if (els.path.value) {
+                    loadFromServer();
+                }
+            };
+            els.startFrame.oninput = () => { if (pvInstance) pvInstance.jumpToFrame(parseInt(els.startFrame.value)); };
+
+            const updateNotif = () => {
+                if (pvInstance) pvInstance.updateNotification(els.notifText.value, els.useNotification.checked);
+            };
+            els.notifText.oninput = updateNotif;
+            els.useNotification.onchange = updateNotif;
+
+            // Server / Manual Input Logic
+            const loadFromServer = () => {
+                const path = els.path.value.trim();
+                if (!path || path.length < 5) return;
+
+                // We need to check if the path is a file or directory for "smart" internal fix?
+                // Actually parseBtn logic handles the split. 
+                // Here we assume path is the DIRECTORY.
+
+                // Clear local files if any
+                currentFiles = [];
+                els.fileInput.value = '';
+                els.fileStatus.innerHTML = '<span style="color:blue">Sunucudan yükleniyor...</span>';
+
+                let finalPath = path.endsWith('/') ? path : path + '/';
+
+                if (pvInstance) { pvInstance.destroy && pvInstance.destroy(); }
+                document.getElementById('pv').innerHTML = '';
+
+                pvInstance = new ProductViewer({
+                    element: document.getElementById('pv'),
+                    imagePath: finalPath,
+                    filePrefix: els.prefix.value,
+                    fileExtension: els.ext.value,
+                    numberOfImages: parseInt(els.totalFrames.value) || 36,
+                    zeroPadding: els.zeroPadding.checked,
+                    startFrame: parseInt(els.startFrame.value) || 1,
+                    // reuse settings
+                    sensitivity: parseInt(els.sensitivity.value),
+                    friction: parseInt(els.friction.value) / 100,
+                    inertia: els.inertia.checked,
+                    maxZoom: els.allowZoom.checked ? parseFloat(els.maxZoom.value) : 1,
+                    notification: els.useNotification.checked ? { text: els.notifText.value } : null,
+                    // Advanced
+                    controls: els.showControls.checked,
+                    fullscreen: els.showFullScreen.checked
+                });
+
+                // Error handling feedback
+                pvInstance.on('error', (src) => {
+                    els.fileStatus.innerHTML = `<span style="color:red">Hata: Görsel bulunamadı!</span><br><small style="font-size:0.7em">${src}</small>`;
+                });
+                pvInstance.on('loaded', () => {
+                    els.fileStatus.innerHTML = `<span style="color:green">Sunucudan yüklendi!</span>`;
+                });
+
+                els.spinBtn.disabled = false;
+            };
+
+            // Smart Parse Logic
+            els.parseBtn.onclick = () => {
+                const fullUrl = els.path.value.trim();
+                if (!fullUrl) return;
+
+                // Try to split path and filename
+                const lastSlash = fullUrl.lastIndexOf('/');
+                if (lastSlash === -1 || lastSlash === fullUrl.length - 1) {
+                    alert("Lütfen geçerli bir dosya URL'si girin (örn: .../IMG_1.jpg)");
+                    return;
+                }
+
+                const basePath = fullUrl.substring(0, lastSlash + 1);
+                const filename = fullUrl.substring(lastSlash + 1);
+
+                // Regex: (Prefix)(Number)(Extension)
+                // e.g. IMG_ (1) (.jpg)
+                const match = filename.match(/^(.*?)([0-9]+)(\.[a-zA-Z0-9]+)$/);
+
+                if (match) {
+                    els.path.value = basePath;
+                    els.prefix.value = match[1]; // Prefix
+                    const numStr = match[2];
+                    els.ext.value = match[3]; // Ext
+
+                    // Detect zero padding
+                    if (numStr.length > 1 && numStr.startsWith('0')) {
+                        els.zeroPadding.checked = true;
+                    } else {
+                        els.zeroPadding.checked = false;
+                    }
+
+                    els.startFrame.value = parseInt(numStr, 10);
+
+                    loadFromServer(); // Trigger load immediately
+                } else {
+                    alert("Dosya formatı algılanamadı! Dosya adının bir sayı içerdiğinden emin olun.");
+                }
+            };
+
+            // Remove Debounce for URL input aimed at directory, keep it simple
+            // If user pastes full URL, they should click "Formatı Bul"
+            // Or just auto-load if it ends with /
+            // Let's keep debounce but maybe increase delay or let button do the main work.
+            // I'll keep existing debounce for backward compat but the Parse button is the star now.
+
+            let timeout = null;
+            els.path.addEventListener('input', () => {
+                // If it looks like a full file URL, don't auto load directory, wait for parse?
+                // Or just auto-load if it ends with /
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    const val = els.path.value.trim();
+                    if (val.endsWith('/')) loadFromServer();
+                }, 1000);
+            });
+
+            els.prefix.addEventListener('change', loadFromServer); // Use change for less flickering
+            els.ext.addEventListener('change', loadFromServer);
+            els.zeroPadding.addEventListener('change', loadFromServer);
+
+            els.spinBtn.onclick = () => { if (pvInstance) pvInstance.animate360(2000); };
+
+            els.copyBtn.onclick = () => {
+                els.outputCode.select();
+                document.execCommand('copy');
+                els.copyBtn.textContent = 'Kopyalandı!';
+                setTimeout(() => els.copyBtn.textContent = 'Kodu Kopyala', 2000);
+            };
+
+            els.generateBtn.onclick = () => {
+                const path = els.path.value.trim();
+                const prefix = els.prefix.value.trim();
+                const ext = els.ext.value.trim();
+                const count = parseInt(els.totalFrames.value) || 36;
+                let finalPath = path ? (path.endsWith('/') ? path : path + '/') : "GÖRSEL_YOLUNUZU_GİRİN/";
+                const uniqueId = 'pv-' + Math.random().toString(36).substr(2, 9);
+                const useZero = els.zeroPadding.checked;
+
+                const sens = els.sensitivity.value;
+                const fric = parseInt(els.friction.value) / 100;
+                const mZoom = els.allowZoom.checked ? els.maxZoom.value : 1;
+                const notif = els.useNotification.checked ? JSON.stringify({ text: els.notifText.value }) : "null";
+                const useInertia = els.inertia.checked;
+                const startF = parseInt(els.startFrame.value) || 1;
+
+                // Advanced
+                const showC = els.showControls.checked;
+                const showFS = els.showFullScreen.checked;
+
+                // Get the actual source code of ProductViewer
+                // Get the actual source code of ProductViewer
+                // No escaping needed if we use concatenation appropriately
+                const classCode = window.ProductViewer.toString();
+
+                // Use array join for cleaner multi-line string construction without backtick hell
+                const scriptParts = [
+                    '<div id="' + uniqueId + '" style="width: 100%; max-width: 500px; aspect-ratio: 1; margin: 0 auto; position: relative; overflow: hidden;"></div>',
+                    '<script>',
+                    '(function() {',
+                    '    // Injecting the full ProductViewer class logic dynamically',
+                    '    const ProductViewer = ' + classCode + ';',
+                    '',
+                    '    new ProductViewer({',
+                    '        element: document.getElementById("' + uniqueId + '"),',
+                    '        imagePath: "' + finalPath + '",',
+                    '        filePrefix: "' + prefix + '",',
+                    '        fileExtension: "' + ext + '",',
+                    '        numberOfImages: ' + count + ',',
+                    '        startFrame: ' + startF + ',',
+                    '        sensitivity: ' + sens + ',',
+                    '        friction: ' + fric + ',',
+                    '        maxZoom: ' + mZoom + ',',
+                    '        inertia: ' + useInertia + ',',
+                    '        zeroPadding: ' + useZero + ',',
+                    '        notification: ' + notif + ',',
+                    '        // Advanced',
+                    '        controls: ' + showC + ',',
+                    '        fullscreen: ' + showFS,
+                    '    });',
+                    '})();',
+                    '<\/script>'
+                ];
+
+                els.outputCode.value = scriptParts.join('\n');
+            };
+        });
+    </script>
+</body>
+
+</html>
