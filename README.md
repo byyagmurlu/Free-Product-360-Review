@@ -23,7 +23,7 @@ This project is a tool that allows you to convert a sequence of product images (
 ### Live Demo (GitHub Pages)
 
 You can view a live demo of the generated code here:
-[View Demo](https://byyagmurlu.github.io/360-product-viewer/demo.html)
+[View Demo](https://byyagmurlu.github.io/Free-Product-360-Review/demo.html)
 
 
 ### How to Use?
@@ -60,7 +60,7 @@ Bu proje, bir dizi sıralı ürün görselini (360 derece çekimler) web siteniz
 ### Canlı Demo (GitHub Pages)
 
 Oluşturulan kodun canlı demosunu buradan inceleyebilirsiniz:
-[Demoyu Görüntüle](https://byyagmurlu.github.io/360-product-viewer/demo.html)
+[Demoyu Görüntüle](https://byyagmurlu.github.io/Free-Product-360-Review/demo.html)
 
 
 ### Nasıl Kullanılır?
@@ -75,3 +75,4 @@ Oluşturulan kodun canlı demosunu buradan inceleyebilirsiniz:
 ### Kurulum (Geliştiriciler İçin)
 
 Herhangi bir kurulum gerekmez. Sadece dosyaları bir sunucuya yüklemeniz veya yerel olarak çalıştırmanız yeterlidir.
+
